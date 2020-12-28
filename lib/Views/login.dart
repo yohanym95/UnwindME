@@ -84,7 +84,7 @@ class _LoginState extends State<Login> {
                   _loginButton(user, _email.text, _password.text),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
-                    child: _signInButton(),
+                    child: _signInButton(user),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
@@ -147,14 +147,20 @@ class _LoginState extends State<Login> {
     return null;
   }
 
-  Widget _signInButton() {
+  Widget _signInButton(UserRepository user) {
     return OutlineButton(
       splashColor: Colors.purple,
       onPressed: () {
-        setState(() {
-          //  _isLoading = true;
+        setState(() async {
+          setState(() {
+            _isLoading = true;
+          });
+          if (!await user.signInWithGoogle()) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         });
-        // check();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
