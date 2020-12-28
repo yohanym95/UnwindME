@@ -1,27 +1,40 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_maaapp/Views/History.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_maaapp/Views/Home.dart';
-import 'package:flutter_maaapp/Views/Profile.dart';
-import 'package:flutter_maaapp/Views/Questionarie.dart';
+import 'package:flutter_maaapp/models/User.dart';
+import 'package:flutter_maaapp/services/ProfileRepository.dart';
+import 'package:flutter_maaapp/services/UserRepository.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 
 enum Gender { Male, Female }
 
 class PersonalDetails extends StatefulWidget {
+  String name;
+  PersonalDetails([this.name]);
   @override
-  _PersonalDetailsState createState() => _PersonalDetailsState();
+  _PersonalDetailsState createState() => _PersonalDetailsState(this.name);
 }
 
 class _PersonalDetailsState extends State<PersonalDetails> {
+  String name;
+  _PersonalDetailsState([this.name]);
   var _formKey = GlobalKey<FormState>();
   TextEditingController _height = TextEditingController();
   TextEditingController _weight = TextEditingController();
   TextEditingController _age = TextEditingController();
+  TextEditingController _name = TextEditingController();
+  TextEditingController _email = TextEditingController();
+  bool _isLoading = false;
 
   Gender _gender = Gender.Male;
 
   @override
   Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileRepository>(context, listen: false);
+    final user = Provider.of<UserRepository>(context, listen: false);
+    _name.text = user.user.displayName;
+    _email.text = user.user.email;
     return Scaffold(
         backgroundColor: Color(0xFFececec),
         appBar: AppBar(
@@ -32,7 +45,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                 color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
-        body: SingleChildScrollView(
+        body: ModalProgressHUD(
+          inAsyncCall: _isLoading,
+          color: Colors.purple[200],
           child: SingleChildScrollView(
             child: Container(
               margin: EdgeInsets.all(5),
@@ -47,6 +62,64 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                           padding: EdgeInsets.only(
                               top: 15.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
+                            controller: _name,
+                            //style: textStyle,
+                            validator: (value) {
+                              if (value.isEmpty)
+                                return 'Please Enter Your Name';
+                              return null;
+                            },
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Name',
+                              focusColor: Colors.purple,
+                              labelStyle: TextStyle(
+                                  fontSize: 18.0, color: Colors.black),
+                              errorStyle: TextStyle(
+                                  color: Colors.redAccent, fontSize: 15.0),
+                              hintText: 'Enter Your Name',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                          )),
+                    ),
+                    Container(
+                      margin:
+                          EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
+                      child: Padding(
+                          padding: EdgeInsets.only(
+                              top: 10.0, bottom: 5.0, left: 5, right: 5),
+                          child: TextFormField(
+                            controller: _email,
+                            //style: textStyle,
+                            validator: (value) {
+                              if (value.isEmpty)
+                                return 'Please Enter Your Email';
+                              return null;
+                            },
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              focusColor: Colors.purple,
+                              labelStyle: TextStyle(
+                                  fontSize: 18.0, color: Colors.black),
+                              errorStyle: TextStyle(
+                                  color: Colors.redAccent, fontSize: 15.0),
+                              hintText: 'Enter Your Email',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                          )),
+                    ),
+                    Container(
+                      margin:
+                          EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
+                      child: Padding(
+                          padding: EdgeInsets.only(
+                              top: 10.0, bottom: 5.0, left: 5, right: 5),
+                          child: TextFormField(
                             controller: _height,
                             //style: textStyle,
                             validator: (value) {
@@ -54,6 +127,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                                 return 'Please Enter your Height';
                               return null;
                             },
+                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: 'Height',
                               focusColor: Colors.purple,
@@ -61,7 +135,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                                   fontSize: 18.0, color: Colors.black),
                               errorStyle: TextStyle(
                                   color: Colors.redAccent, fontSize: 15.0),
-                              hintText: 'Enter Your Height',
+                              hintText: 'Enter Your Height (cm)',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
@@ -75,7 +149,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                               top: 10.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
                             controller: _weight,
-                            //style: textStyle,
+                            keyboardType: TextInputType.number,
                             validator: (value) {
                               if (value.isEmpty)
                                 return 'Please Enter your Weight';
@@ -88,7 +162,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                                     fontSize: 18.0, color: Colors.black),
                                 errorStyle: TextStyle(
                                     color: Colors.redAccent, fontSize: 15.0),
-                                hintText: 'Enter Your Weight',
+                                hintText: 'Enter Your Weight (Kg)',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
                                 )),
@@ -170,11 +244,8 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                               top: 15.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
                             controller: _age,
-                            //style: textStyle,
-                            validator: (value) {
-                              if (value.isEmpty) return 'Please Enter your Age';
-                              return null;
-                            },
+                            keyboardType: TextInputType.number,
+                            validator: validateAge,
                             decoration: InputDecoration(
                               labelText: 'Age',
                               focusColor: Colors.purple,
@@ -189,7 +260,8 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                             ),
                           )),
                     ),
-                    _submitButton()
+                    _submitButton(_name.text, 111.0, 50.0, "Male",
+                        int.parse(_age.text), _email.text, user, profile)
                   ],
                 ),
               ),
@@ -198,7 +270,24 @@ class _PersonalDetailsState extends State<PersonalDetails> {
         ));
   }
 
-  Widget _submitButton() {
+  String validateAge(String age) {
+    int value = int.parse(age);
+
+    if (value < 20 || value > 30) {
+      return 'Your Age Should be 20 - 30';
+    }
+    return null;
+  }
+
+  Widget _submitButton(
+      String username,
+      double height,
+      double weight,
+      String gender,
+      int age,
+      String email,
+      UserRepository user,
+      ProfileRepository profile) {
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: MaterialButton(
@@ -213,16 +302,31 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                   fontWeight: FontWeight.bold,
                   color: Colors.white)),
         ),
-        onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => Profile()),
-          // );
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => Home()),
-            (Route<dynamic> route) => false,
-          );
+        onPressed: () async {
+          if (_formKey.currentState.validate()) {
+            setState(() {
+              _isLoading = true;
+            });
+            var uid;
+            await user.getCurrentUser().then((value) => {uid = value.uid});
+            print(uid);
+            UserDetails userDetails =
+                new UserDetails(username, height, weight, gender, age, email);
+            if (await profile.addUserDetails(userDetails, context, uid)) {
+              setState(() {
+                _isLoading = false;
+              });
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => Home()),
+                (Route<dynamic> route) => false,
+              );
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          }
         },
         color: Color(0xFF9d59b8),
       ),

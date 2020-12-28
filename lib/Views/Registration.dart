@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_maaapp/Views/personalDetails.dart';
+import 'package:flutter_maaapp/services/ProfileRepository.dart';
+import 'package:flutter_maaapp/services/UserRepository.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -10,8 +15,11 @@ class _RegisterState extends State<Register> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _username = TextEditingController();
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserRepository>(context);
     return Scaffold(
         backgroundColor: Color(0xFFececec),
         appBar: AppBar(
@@ -22,98 +30,99 @@ class _RegisterState extends State<Register> {
                 color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
-        body: SingleChildScrollView(
+        body: ModalProgressHUD(
+          inAsyncCall: _isLoading,
+          color: Colors.purple[200],
           child: SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.all(5),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      child: Image(
-                        image: AssetImage("assets/logos/registration.png"),
+            child: SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.all(5),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        child: Image(
+                          image: AssetImage("assets/logos/registration.png"),
+                        ),
                       ),
-                    ),
-                    Container(
-                      margin:
-                          EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
-                      child: Padding(
-                          padding: EdgeInsets.only(
-                              top: 15.0, bottom: 5.0, left: 5, right: 5),
-                          child: TextFormField(
-                            controller: _username,
-                            //style: textStyle,
-                            validator: (value) {
-                              if (value.isEmpty)
-                                return 'Please Enter your User Name';
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: 'User Name',
-                              focusColor: Colors.purple,
-                              labelStyle: TextStyle(
-                                  fontSize: 18.0, color: Colors.black),
-                              prefixIcon: Icon(Icons.person),
-                              errorStyle: TextStyle(
-                                  color: Colors.redAccent, fontSize: 15.0),
-                              hintText: 'Enter Your User Name',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
+                      Container(
+                        margin: EdgeInsets.only(
+                            top: 5, left: 5, right: 5, bottom: 5),
+                        child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 15.0, bottom: 5.0, left: 5, right: 5),
+                            child: TextFormField(
+                              controller: _username,
+                              //style: textStyle,
+                              validator: (value) {
+                                if (value.isEmpty)
+                                  return 'Please Enter your User Name';
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'User Name',
+                                focusColor: Colors.purple,
+                                labelStyle: TextStyle(
+                                    fontSize: 18.0, color: Colors.black),
+                                prefixIcon: Icon(Icons.person),
+                                errorStyle: TextStyle(
+                                    color: Colors.redAccent, fontSize: 15.0),
+                                hintText: 'Enter Your User Name',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
                               ),
-                            ),
-                          )),
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: Padding(
-                          padding: EdgeInsets.only(
-                              top: 10.0, bottom: 5.0, left: 5, right: 5),
-                          child: TextFormField(
-                            controller: _email,
-                            obscureText: true,
-                            //style: textStyle,
-                            validator: validateEmail1,
-                            decoration: InputDecoration(
-                                labelText: 'Email',
-                                focusColor: Colors.purple,
-                                labelStyle: TextStyle(
-                                    fontSize: 18.0, color: Colors.black),
-                                prefixIcon: Icon(Icons.email),
-                                errorStyle: TextStyle(
-                                    color: Colors.redAccent, fontSize: 15.0),
-                                hintText: 'Enter Your Email',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                )),
-                          )),
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: Padding(
-                          padding: EdgeInsets.only(
-                              top: 5.0, bottom: 0, left: 5, right: 5),
-                          child: TextFormField(
-                            controller: _password,
-                            obscureText: true,
-                            //style: textStyle,
-                            validator: validateEmail1,
-                            decoration: InputDecoration(
-                                labelText: 'Password',
-                                focusColor: Colors.purple,
-                                labelStyle: TextStyle(
-                                    fontSize: 18.0, color: Colors.black),
-                                prefixIcon: Icon(Icons.lock_outline),
-                                errorStyle: TextStyle(
-                                    color: Colors.redAccent, fontSize: 15.0),
-                                hintText: 'Enter Your Password',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                )),
-                          )),
-                    ),
-                    _loginButton(),
-                  ],
+                            )),
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(5),
+                        child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 10.0, bottom: 5.0, left: 5, right: 5),
+                            child: TextFormField(
+                              controller: _email,
+                              validator: validateEmail1,
+                              decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  focusColor: Colors.purple,
+                                  labelStyle: TextStyle(
+                                      fontSize: 18.0, color: Colors.black),
+                                  prefixIcon: Icon(Icons.email),
+                                  errorStyle: TextStyle(
+                                      color: Colors.redAccent, fontSize: 15.0),
+                                  hintText: 'Enter Your Email',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  )),
+                            )),
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(5),
+                        child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 5.0, bottom: 0, left: 5, right: 5),
+                            child: TextFormField(
+                              controller: _password,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  focusColor: Colors.purple,
+                                  labelStyle: TextStyle(
+                                      fontSize: 18.0, color: Colors.black),
+                                  prefixIcon: Icon(Icons.lock_outline),
+                                  errorStyle: TextStyle(
+                                      color: Colors.redAccent, fontSize: 15.0),
+                                  hintText: 'Enter Your Password',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  )),
+                            )),
+                      ),
+                      _loginButton(
+                          user, _email.text, _password.text, _username.text)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -131,7 +140,8 @@ class _RegisterState extends State<Register> {
     return null;
   }
 
-  Widget _loginButton() {
+  Widget _loginButton(
+      UserRepository user, String email, String password, String name) {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: MaterialButton(
@@ -146,7 +156,29 @@ class _RegisterState extends State<Register> {
                 fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
-        onPressed: () {},
+        onPressed: () async {
+          if (_formKey.currentState.validate()) {
+            setState(() {
+              _isLoading = true;
+            });
+            if (await user.signUp(email, password)) {
+              // final profile = Provider.of<ProfileRepository>(context);
+              // await profile.addUserDetails(userDetails, context, uid)
+              setState(() {
+                _isLoading = false;
+              });
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => PersonalDetails(name)),
+                (Route<dynamic> route) => false,
+              );
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          }
+        },
         color: Color(0xFF9d59b8),
       ),
     );

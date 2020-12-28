@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "229348288477",
+    "project_id": "unwindme-f1e39",
+    "storage_bucket": "unwindme-f1e39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229348288477:android:51c4c47cfd381d3717b834",
+        "android_client_info": {
+          "package_name": "com.example.flutter_maaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "229348288477-dt3n832paciu5h7c0g878smkmgqriu7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARjt2zJnc8df9eqj1A_H-wo1o8uOYMA8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "229348288477-dt3n832paciu5h7c0g878smkmgqriu7k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
