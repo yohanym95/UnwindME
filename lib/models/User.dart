@@ -3,11 +3,11 @@ class UserDetails {
   double height;
   double weight;
   String gender;
-  int age;
+  String age;
   String email;
 
   UserDetails(
-      String name, double height, double weight, String gender, int age,String email) {
+      String name, double height, double weight, String gender, String age,String email) {
     this.name = name;
     this.height = height;
     this.weight = weight;

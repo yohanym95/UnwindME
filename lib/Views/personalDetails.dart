@@ -261,7 +261,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                           )),
                     ),
                     _submitButton(_name.text, 111.0, 50.0, "Male",
-                        int.parse(_age.text), _email.text, user, profile)
+                        _age.text, _email.text, user, profile)
                   ],
                 ),
               ),
@@ -284,10 +284,11 @@ class _PersonalDetailsState extends State<PersonalDetails> {
       double height,
       double weight,
       String gender,
-      int age,
+      String age,
       String email,
       UserRepository user,
       ProfileRepository profile) {
+      //  var ageValue = int.parse(age);
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: MaterialButton(

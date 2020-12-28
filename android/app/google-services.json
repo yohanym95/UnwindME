@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "229348288477",
+    "firebase_url": "https://unwindme-f1e39-default-rtdb.firebaseio.com",
     "project_id": "unwindme-f1e39",
     "storage_bucket": "unwindme-f1e39.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "229348288477-vq8lnqi73nslruvdvbj7g356l7gkisdk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_maaapp",
+            "certificate_hash": "b2fe1909cbad1c9dd8bebee423bbbcafec616847"
+          }
+        },
         {
           "client_id": "229348288477-dt3n832paciu5h7c0g878smkmgqriu7k.apps.googleusercontent.com",
           "client_type": 3
