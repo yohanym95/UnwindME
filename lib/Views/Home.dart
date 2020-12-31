@@ -7,7 +7,10 @@ import 'package:flutter_maaapp/Views/Profile.dart';
 import 'package:flutter_maaapp/Views/Questionarie.dart';
 import 'package:flutter_maaapp/Views/modes.dart';
 import 'package:flutter_maaapp/Widgets/profile.dart';
+import 'package:flutter_maaapp/services/ProfileRepository.dart';
+import 'package:flutter_maaapp/services/UserRepository.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -157,74 +160,83 @@ class _HomeState extends State<Home> {
   }
 
   Widget getDrawer() {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        DrawerHeader(
-          child: Container(
-            alignment: Alignment.center,
-            child: profileAvatar(300, 300),
+    final profile = Provider.of<ProfileRepository>(context, listen: false);
+    final user = Provider.of<UserRepository>(context);
+    var photoUrl = "";
+    profile
+        .getUserDetails(user.user.uid)
+        .then((value) => photoUrl = value.name);
+    return Consumer(builder: (context, ProfileRepository profileRepository, _) {
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Container(
+              alignment: Alignment.center,
+              child: profileAvatar(
+                  300, 300, profileRepository.userDetails.photoUrl),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.purple[50],
+            ),
           ),
-          decoration: BoxDecoration(
-            color: Colors.purple[50],
+          GestureDetector(
+            child: getDrawerItem(Icons.person, 'Profile'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Profile()),
+              );
+            },
           ),
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.person, 'Profile'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Profile()),
-            );
-          },
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.history, 'History'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => History()),
-            );
-          },
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.data_usage, 'Performance'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Questionarie()),
-            );
-          },
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.beach_access, 'Environments'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Environment()),
-            );
-          },
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.settings, 'Setting'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Modes()),
-            );
-          },
-        ),
-        GestureDetector(
-          child: getDrawerItem(Icons.directions_walk, 'Step Count'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Questionarie()),
-            );
-          },
-        ),
-      ],
-    );
+          GestureDetector(
+            child: getDrawerItem(Icons.history, 'History'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => History()),
+              );
+            },
+          ),
+          GestureDetector(
+            child: getDrawerItem(Icons.data_usage, 'Performance'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Questionarie()),
+              );
+            },
+          ),
+          GestureDetector(
+            child: getDrawerItem(Icons.beach_access, 'Environments'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Environment()),
+              );
+            },
+          ),
+          GestureDetector(
+            child: getDrawerItem(Icons.settings, 'Setting'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Modes()),
+              );
+            },
+          ),
+          GestureDetector(
+            child: getDrawerItem(Icons.directions_walk, 'Step Count'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Questionarie()),
+              );
+            },
+          ),
+        ],
+      );
+    });
   }
 
   Widget getDrawerItem(IconData icon, String title) {

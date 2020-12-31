@@ -86,40 +86,39 @@ class _LoginState extends State<Login> {
                     padding: const EdgeInsets.only(top: 20),
                     child: _signInButton(user),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            'Already have an account?',
-                            style: TextStyle(
-                                color: Color(0xFF9d59b8), fontSize: 14),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          GestureDetector(
-                            child: Text(
+                  GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              'Already have an account?',
+                              style: TextStyle(
+                                  color: Color(0xFF9d59b8), fontSize: 14),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
                               'Sign Up',
                               style: TextStyle(
                                   color: Color(0xFF9d59b8),
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Register()),
-                              );
-                            },
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Register()),
+                      );
+                    },
                   )
                 ],
               ),

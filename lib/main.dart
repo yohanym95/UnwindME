@@ -52,16 +52,19 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-  
 }
-
 
 class Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Center(
-        child: Text("Splash Screen"),
+    return Scaffold(
+      body: Center(
+        child: Container(
+          alignment: Alignment.center,
+          child: Center(
+            child: Image(image: AssetImage("assets/logos/logotrans.png")),
+          ),
+        ),
       ),
     );
   }
