@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'package:path/path.dart' as Path;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_maaapp/Views/Home.dart';
 import 'package:flutter_maaapp/models/User.dart';
 import 'package:flutter_maaapp/services/ProfileRepository.dart';
 import 'package:flutter_maaapp/services/UserRepository.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +30,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
   TextEditingController _name = TextEditingController();
   TextEditingController _email = TextEditingController();
   bool _isLoading = false;
+  String photoUrl;
+  File _imageFile;
+  StorageReference reference;
 
   Gender _gender = Gender.Male;
 
@@ -33,8 +40,16 @@ class _PersonalDetailsState extends State<PersonalDetails> {
   Widget build(BuildContext context) {
     final profile = Provider.of<ProfileRepository>(context, listen: false);
     final user = Provider.of<UserRepository>(context, listen: false);
-    _name.text = user.user.displayName;
+    if (user.user.displayName != null) {
+      _name.text = user.user.displayName;
+    } else if (name != null) {
+      _name.text = name;
+    }
+
     _email.text = user.user.email;
+    if (user.user.photoURL != null) {
+      photoUrl = user.user.photoURL;
+    }
     return Scaffold(
         backgroundColor: Color(0xFFececec),
         appBar: AppBar(
@@ -55,12 +70,46 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    photoUrl == null
+                        ? GestureDetector(
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              child: CircleAvatar(
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.blue[100],
+                                  size: 70,
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              askCapture(context);
+                            },
+                          )
+                        : Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              child: ClipOval(
+                                child: Image.network(
+                                  photoUrl,
+                                  // height: 150,
+                                  width: 100,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            )),
                     Container(
-                      margin: EdgeInsets.only(
-                          top: 15, left: 5, right: 5, bottom: 5),
+                      margin:
+                          EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
                       child: Padding(
                           padding: EdgeInsets.only(
-                              top: 15.0, bottom: 5.0, left: 5, right: 5),
+                              top: 10.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
                             controller: _name,
                             //style: textStyle,
@@ -69,7 +118,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                                 return 'Please Enter Your Name';
                               return null;
                             },
-                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: 'Name',
                               focusColor: Colors.purple,
@@ -127,7 +175,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                                 return 'Please Enter your Height';
                               return null;
                             },
-                            keyboardType: TextInputType.number,
+                            onEditingComplete: () {
+                              _height.text = _height.text.toString() + 'Cm';
+                            },
                             decoration: InputDecoration(
                               labelText: 'Height',
                               focusColor: Colors.purple,
@@ -149,11 +199,13 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                               top: 10.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
                             controller: _weight,
-                            keyboardType: TextInputType.number,
                             validator: (value) {
                               if (value.isEmpty)
                                 return 'Please Enter your Weight';
                               return null;
+                            },
+                            onEditingComplete: () {
+                              _weight.text = _weight.text.toString() + 'Kg';
                             },
                             decoration: InputDecoration(
                                 labelText: 'Weight',
@@ -244,7 +296,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                               top: 15.0, bottom: 5.0, left: 5, right: 5),
                           child: TextFormField(
                             controller: _age,
-                            keyboardType: TextInputType.number,
                             validator: validateAge,
                             decoration: InputDecoration(
                               labelText: 'Age',
@@ -260,8 +311,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                             ),
                           )),
                     ),
-                    _submitButton(_name.text, 111.0, 50.0, "Male",
-                        _age.text, _email.text, user, profile)
+                    _submitButton(user, profile)
                   ],
                 ),
               ),
@@ -279,16 +329,8 @@ class _PersonalDetailsState extends State<PersonalDetails> {
     return null;
   }
 
-  Widget _submitButton(
-      String username,
-      double height,
-      double weight,
-      String gender,
-      String age,
-      String email,
-      UserRepository user,
-      ProfileRepository profile) {
-      //  var ageValue = int.parse(age);
+  Widget _submitButton(UserRepository user, ProfileRepository profile) {
+    //  var ageValue = int.parse(age);
     return Padding(
       padding: const EdgeInsets.only(top: 40),
       child: MaterialButton(
@@ -311,26 +353,146 @@ class _PersonalDetailsState extends State<PersonalDetails> {
             var uid;
             await user.getCurrentUser().then((value) => {uid = value.uid});
             print(uid);
-            UserDetails userDetails =
-                new UserDetails(username, height, weight, gender, age, email);
-            if (await profile.addUserDetails(userDetails, context, uid)) {
-              setState(() {
-                _isLoading = false;
-              });
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => Home()),
-                (Route<dynamic> route) => false,
-              );
+            if (photoUrl != null) {
+              UserDetails userDetails = new UserDetails(
+                  _name.text,
+                  _height.text.toString(),
+                  _weight.text.toString(),
+                  _gender.toString(),
+                  _height.text.toString(),
+                  _email.text,
+                  photoUrl);
+              if (await profile.addUserDetails(userDetails, context, uid)) {
+                setState(() {
+                  _isLoading = false;
+                });
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => Home()),
+                  (Route<dynamic> route) => false,
+                );
+              } else {}
             } else {
-              setState(() {
-                _isLoading = false;
-              });
+              return showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(
+                        'Profile',
+                        style: TextStyle(
+                            fontSize: 15.0, fontWeight: FontWeight.bold),
+                      ),
+                      content: Text('Please Add the profile picture'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('Ok'),
+                          textColor: Colors.blue,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                        ),
+                      ],
+                    );
+                  });
             }
           }
         },
         color: Color(0xFF9d59b8),
       ),
     );
+  }
+
+  Future askCapture(BuildContext context) async {
+    switch (await showDialog(
+        context: context,
+        child: Center(
+          child: new SimpleDialog(
+            contentPadding:
+                EdgeInsets.only(right: 10, left: 10, top: 5, bottom: 5),
+            title: new Text(
+              'Choose Your Profile Picture',
+              textAlign: TextAlign.center,
+            ),
+            children: <Widget>[
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        child: Icon(
+                          Icons.photo,
+                          color: Colors.blue[400],
+                          size: 70,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        getImage(false).then((onImage) {
+                          uploadImage(onImage);
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      width: 25,
+                    ),
+                    GestureDetector(
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.blue[400],
+                          size: 70,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        getImage(true).then((onImage) {
+                          uploadImage(onImage);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ))) {
+    }
+  }
+
+  Future getImage(bool isCamera) async {
+    File image;
+    if (isCamera) {
+      image = await ImagePicker.pickImage(source: ImageSource.camera);
+    } else {
+      image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    }
+
+    setState(() {
+      _imageFile = image;
+    });
+    return _imageFile;
+  }
+
+  Future uploadImage(File imagePath) async {
+    reference = FirebaseStorage.instance
+        .ref()
+        .child('Profiles/${Path.basename(imagePath.path)}');
+    //chats/${Path.basename(_imageFile.path)}
+    StorageUploadTask uploadTask = reference.putFile(_imageFile);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    String setImageUrl = await taskSnapshot.ref.getDownloadURL();
+    setState(() {
+      // _uploaded = true;
+      photoUrl = setImageUrl;
+    });
   }
 }
