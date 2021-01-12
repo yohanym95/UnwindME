@@ -61,20 +61,23 @@ class UserRepository with ChangeNotifier {
   }
 
   Future<User> _onAuthStateChanged(User firebaseUser) async {
-    print("loading");
     if (firebaseUser == null) {
       _status = Status.Unauthenticated;
     } else {
       _user = firebaseUser;
-      print(_user.uid+"user id");
-      DataSnapshot snapshot =
-          await _database.child("Users").child(_user.uid).once();
-      if (snapshot.value == null) {
-        print("Item doesn't exist in the db");
-        _status = Status.FirstAuth;
+      if (_user.uid != null) {
+        print(_user.uid + "user id");
+        DataSnapshot snapshot =
+            await _database.child("Users").child(_user.uid).once();
+        if (snapshot.value == null) {
+          print("Item doesn't exist in the db");
+          _status = Status.FirstAuth;
+        } else {
+          print("Item exists in the db");
+          _status = Status.Authenticated;
+        }
       } else {
-        print("Item exists in the db");
-        _status = Status.Authenticated;
+        _status = Status.Unauthenticated;
       }
     }
     notifyListeners();
@@ -90,7 +93,6 @@ class UserRepository with ChangeNotifier {
 
   Future<bool> signInWithGoogle() async {
     try {
-      print("done");
       final GoogleSignInAccount googleSignInAccount =
           await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
@@ -106,7 +108,6 @@ class UserRepository with ChangeNotifier {
           .then((value) => {_user = value.user});
       notifyListeners();
       print(_user.email);
-      print("done 1");
       return true;
     } catch (e) {
       _status = Status.Unauthenticated;
