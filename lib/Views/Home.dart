@@ -225,15 +225,66 @@ class _HomeState extends State<Home> {
               );
             },
           ),
+          // GestureDetector(
+          //   child: getDrawerItem(Icons.directions_walk, 'Step Count'),
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => Questionarie()),
+          //     );
+          //   },
+          // ),
+          Divider(),
           GestureDetector(
-            child: getDrawerItem(Icons.directions_walk, 'Step Count'),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Container(
+                    // margin: const EdgeInsets.only(left: 10),
+                    child: Text(
+                  'Log Out',
+                  style: new TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                      color: Color(0xFF251756)),
+                  textAlign: TextAlign.center,
+                )),
+              ),
+            ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Questionarie()),
-              );
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(
+                        'Log Out',
+                        style: TextStyle(
+                            fontSize: 15.0, fontWeight: FontWeight.bold),
+                      ),
+                      content: Text('Are You Sure?'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('No'),
+                          textColor: Colors.blue,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('Yes'),
+                          textColor: Colors.blue,
+                          onPressed: () {
+                            user
+                                .signOut()
+                                .then((value) => {Navigator.of(context).pop()});
+                          },
+                        )
+                      ],
+                    );
+                  });
             },
-          ),
+          )
         ],
       );
     });
